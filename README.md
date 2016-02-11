@@ -38,7 +38,7 @@ And is equivalent to this HTML:
 ```HTML
 <form action=/submit method=POST>
     <input type=text name=username><br>
-    <input type=password name=password<br>
+    <input type=password name=password><br>
     <input type=submit>
 </form>
 ```
