@@ -1,7 +1,7 @@
 /* 
- * jInsert v1.0 - https://github.com/TazeTSchnitzel/jInsert
+ * jInsert v2.0 - https://github.com/TazeTSchnitzel/jInsert
  *
- * Code except where otherwise noted © 2013 Andrea Faulds.
+ * Code except where otherwise noted © 2013–2016 Andrea Faulds.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,36 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+(function () {
+    'use strict';
 
-function $(props) {
-    if (typeof props === 'string') {
-        return document.createTextNode(props);
-    }
+    window.$ = function (tagName, props, children) {
+        /* We allow the caller to omit `props` and pass `children`. In that
+         * case, `children` argument ends up in the `props` variable, so
+         * we need to move it.
+         */
+        if (props instanceof Array) {
+            children = props;
+            props = {};
+        } else if (props === undefined) {
+            props = {};
+        }
 
-    var elem = document.createElement(props.tagName);
-    for (var name in props) {
-        if (props.hasOwnProperty(name)) {
-            if (name === 'style') {
-                for (var styleName in props.style) {
-                    if (props.style.hasOwnProperty(styleName)) {
-                        elem.style[styleName] = props.style[styleName];
+        var elem = document.createElement(tagName);
+        for (var name in props) {
+            if (props.hasOwnProperty(name)) {
+                if (name === 'style') {
+                    for (var styleName in props.style) {
+                        if (props.style.hasOwnProperty(styleName)) {
+                            elem.style[styleName] = props.style[styleName];
+                        }
                     }
+                } else if (name !== 'tagName' && name !== 'parentElement' && name !== 'children') {
+                    elem[name] = props[name];
                 }
-            } else if (name !== 'tagName' && name !== 'parentElement' && name !== 'children') {
-                elem[name] = props[name];
             }
         }
-    }
 
-    if (props.hasOwnProperty('children')) {
-        props.children.forEach(function (child) {
-            elem.appendChild(child); 
-        });
-    }
+        if (children) {
+            children.forEach(function (child) {
+                if (typeof child === "string") {
+                    child = document.createTextNode(child);
+                }
+                elem.appendChild(child); 
+            });
+        }
 
-    if (props.hasOwnProperty('parentElement')) {
-        props.parentElement.appendChild(elem);
-    }
-
-    return elem;
-}
+        return elem;
+    };
+}());

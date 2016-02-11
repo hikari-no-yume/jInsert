@@ -11,48 +11,34 @@ MIT license, see header comment of jInsert.js.
 API
 ---
 
-* `$`(*props*)
+* `$`(*tagName*[, *props*][, *children*])
 
-  If `props` is a string, the value of `document.createTextNode(props)` is returned.
-
-  Creates an element of type `props.tagName`. Iterates over `props`, copying each property from props to the new element, with the exception of:
+  Creates an element of type `tagName`.
   
-  * `tagName`
-  * `style` - If defined, `props.style` will be iterated over as an object, copying each property to the `style` property of the new element.
-  * `parentElement` - If defined, `props.parentElement.appendChild` is run, being passed the new element.
-  * `children` - If defined, it is iterated over as an array, and appendChild is called on the new element, being passed the item in the list.
-
+  If given, `props` is iterated over, copying each property from props to the new element. If there is a `style` property, it is not copied directly, but rather its properties are copied to the new element's `.style` object.
+  
+  If given, `children` is iterated over, with each item being appended (with `appendChild`) to the new element. If the item is a string, it is converted to a DOM text node before being appended.
+  
   Returns the new element.
 
-An example:
+Thus you can build DOM elements with a leaner syntax closer to HTML. For example, this jInsert code produces a form:
 
-    $({
-        tagName: 'div',
-        parentElement: document.body,
-        style: {
-            backgroundColor: 'red',
-            border: '1px solid black'
-        },
-        children: [1, 2, 3, 4].map(function (number) {
-            return $({
-                tagName: 'div',
-                className: 'number',
-                children: [
-                    $(number.toString())
-                ]
-            });
-        })
-    });
+```JavaScript
+document.body.appendChild($('form', {action: '/submit', method: 'POST'}, [
+    $('input', {type: 'text', name: 'username'}),
+    $('br'),
+    $('input', {type: 'password', name: 'password'}),
+    $('br'),
+    $('input', {type: 'submit'})
+]));
+```
 
-Which is (essentially) equivalent to:
+And is equivalent to this HTML:
 
-    var elem = document.createElement('div');
-    elem.style.backgroundColor = 'red';
-    elem.style.border = '1px solid black';
-    [1, 2, 3, 4].forEach(function (number) {
-        var numberElem = document.createElement('div');
-        numberElem.className = 'number';
-        numberElem.appendChild(document.createTextNode(number.toString()));
-        elem.appendChild(numberElem);
-    });
-    document.body.appendChild(elem);
+```HTML
+<form action=/submit method=POST>
+    <input type=text name=username><br>
+    <input type=password name=password<br>
+    <input type=submit>
+</form>
+```
